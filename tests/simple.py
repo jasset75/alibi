@@ -23,6 +23,10 @@ g = Graph()
 start_id = get_id()
 print('start id',start_id)
 start = {'id': start_id, 'Estado': 'uno' }
-visited = breadth(g,start,f_open_node,verbose=False)
+ok, visited, id = breadth(g,start,f_open_node,verbose=False)
 
+if ok:
+  print('success!')
+else:
+  print('failure...')
 visited.qprint()

@@ -7,20 +7,24 @@ def get_id():
   _id_counter += 1
   return _id_counter
 
-def breadth(graph, start, f_open_node, verbose=True):
+def breadth(graph, start, f_open_node, f_reached=None, verbose=False):
   # print out what we find
   open_nodes = Queue()
-  visited = Queue()
+  closed = Queue()
   open_nodes.put(start)
-  #visited.put(start)
+  #closed.put(start)
   while not open_nodes.empty():
     current = open_nodes.get()
-    visited.put(current)
     if verbose:
-      print('Visiting ',current['id'])
+      print(current)
+    closed.put(current)
+    #verify goal reached
+    if callable(f_reached):
+      if f_reached(current):
+        return (True,closed,current['id'])
     new_nodes = f_open_node(graph,current)
-
     for node in new_nodes:
-      if visited.has(node) < 0:
+      if closed.has(node) < 0:
         open_nodes.put(node)
-  return visited
+  #if open_nodes is empty return failure
+  return (not open_nodes.empty(),closed,[])

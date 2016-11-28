@@ -24,15 +24,18 @@ class Queue:
   def __init__(self):
     self.elements = collections.deque()
 
-  def qprint(self):
-    """
+  def qprint(self,f_print=None):
     nq = self.elements.copy()
     for n in nq:
-      print(n)
+      if callable(f_print):
+        f_print(n)
+      else:
+        print(n)
+
     """
     l = self.elements.list()
     print(l)
-
+    """
   def __iter__(self):
     while not self.empty():
       yield self.get()
