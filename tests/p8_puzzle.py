@@ -1,6 +1,9 @@
+import random
 import numpy as np
 from alibi.structures import Graph
 from alibi.path_st import get_id, breadth
+
+random.seed()
 
 GAP = 0
 PUZZLE_SIDE = 3
@@ -11,17 +14,12 @@ def where_gap(state):
   return (res[0][0],res[1][0])
 
 #State Codification
-def random_is():
-  """
-  randomize initial state
-  """
-  return  np.random.permutation(range(PUZZLE_SIDE**2)).reshape((PUZZLE_SIDE, PUZZLE_SIDE))
 
 ##Initial State (test state)
 #IS = np.matrix('2,8,3;1,6,4;7,0,5')
-IS = np.matrix('0,2,3;1,8,4;7,5,6')
+IS = np.matrix('2,0,3;1,8,4;7,5,6')
 ##Goal State
-GS = np.matrix('1,2,3;8,0,4;7,5,6')
+GS = np.matrix('1,2,3;8,0,4;7,6,5')
 
 #Production Rules
 def move_up(state):
@@ -76,13 +74,29 @@ def move_left(state):
 def goal_state_reached(state):
   return (state == GS).all()
 
+def random_is():
+  """
+  randomize initial state
+  """
+  return  np.random.permutation(range(PUZZLE_SIDE**2)).reshape((PUZZLE_SIDE, PUZZLE_SIDE))
+
+def shuffle(state,moves):
+  """
+  random shuffle of the puzzle
+  """
+  state_copy = state.copy()
+  for n in range(moves):
+    while True:
+      op_id=random.randint(0,3)
+      if check_cons(state_copy,op_id):
+        ops[op_id](state_copy)
+        break
+  return state_copy  
 ##ops list
-ops = [
-  move_left,
-  move_up,
-  move_right,
-  move_down
-]
+ops = [move_left,move_up,move_right,move_down]
+
+arrows = ['<','^','>','v','=']
+
 ##Constraints
 CS = [
   (1,0), #col is first
@@ -98,15 +112,15 @@ def check_cons(state,op_id):
 
 ##State production
 def f_open_node(graph,current):
-  def new_node(state,op):
+  def new_node(node,i,op):
     #apply op in state and generate new node
-    new_state=op(np.copy(state))
-    return dict(id=get_id(),state=new_state)
+    new_state=op(np.copy(node['state']))
+    return dict(id=get_id(),state=new_state,num_op=i,father_id=node['id'])
   open_nodes = []
   #branch all available states from current
   for i,op in enumerate(ops):
     if check_cons(current['state'],i):
-      node = new_node(current['state'],op)
+      node = new_node(current,i,op)
       graph.connect(current['id'],node['id'])
       open_nodes.append(node)
   return open_nodes
@@ -114,24 +128,32 @@ def f_open_node(graph,current):
 def f_reached(node):
   return goal_state_reached(node['state'])
 
+def f_print_node(node):
+  print('{0}{1}{2}'.format(node['father_id'],arrows[node['num_op']],node['id']))
+  print(node['state'])
+
+
 def main():
   g = Graph()
   print('Goal State:')
   print(GS)
   #state = random_is()
-  nodo = dict(id=get_id())
-  nodo['state'] = IS#random_is()
+  node = dict(id=get_id())
+  node['state'] = shuffle(GS,4)#IS#random_is()
+  node['father_id'] = 0
+  node['num_op'] = 4
   print('Initial State:')
-  print(nodo['state'])
+  print(node['state'])
 
-  success,visited,id_goal = breadth(g,nodo,f_open_node,f_reached=f_reached,verbose=True)
+  success,visited,id_goal = breadth(g,node,f_open_node,f_reached=f_reached,verbose=False,f_print=f_print_node)
 
   if success:
     print('success!')
   else:
     print('failure...')
 
-  print(visited)
+  visited.qprint(f_print=f_print_node)
+  print(g)
 
 if __name__ == "__main__":
   main()

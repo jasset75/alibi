@@ -1,4 +1,5 @@
 import collections
+import heapq
 
 class Graph:
   def __init__(self):
@@ -19,6 +20,11 @@ class Graph:
       self._fst_edge(id_2)
       self.edges[id_2].append(id_1)
 
+  def __str__(self):
+    return str(self.edges)
+
+  def gprint(self):
+    print(self.edges)
 
 class Queue:
   def __init__(self):
@@ -31,7 +37,6 @@ class Queue:
         f_print(n)
       else:
         print(n)
-
     """
     l = self.elements.list()
     print(l)
@@ -54,3 +59,16 @@ class Queue:
       return self.elements.index(x)
     except ValueError:
       return -1
+
+class PriorityQueue:
+    def __init__(self):
+        self.elements = []
+    
+    def empty(self):
+        return len(self.elements) == 0
+    
+    def put(self, item, priority):
+        heapq.heappush(self.elements, (priority, item))
+    
+    def get(self):
+        return heapq.heappop(self.elements)[1]
