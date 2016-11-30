@@ -154,15 +154,18 @@ def main():
 
   print('nodos visitados:')
   visited.qprint(f_print=f_print_node)
-  #g.gprint(f_print_node)
-  #print(g)
+
   print('solucion:')
   if id_goal:
     id_node = id_goal
+    path = []
     next_node = g.get_node(id_node)
     while next_node:
-      f_print_node(next_node)
+      path.insert(0,next_node)
       next_node = g.get_node(next_node['father_id'])
+    
+    for node in path:
+      f_print_node(node)
 
 
 if __name__ == "__main__":
