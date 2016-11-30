@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from alibi.structures import Graph
+from alibi.structures import NodeGraph
 from alibi.path_st import get_id, breadth
 
 random.seed()
@@ -121,7 +121,7 @@ def f_open_node(graph,current):
   for i,op in enumerate(ops):
     if check_cons(current['state'],i):
       node = new_node(current,i,op)
-      graph.connect(current['id'],node['id'])
+      graph.connect(current,node)
       open_nodes.append(node)
   return open_nodes
 
@@ -129,19 +129,19 @@ def f_reached(node):
   return goal_state_reached(node['state'])
 
 def f_print_node(node):
-  print('{0}{1}{2}'.format(node['father_id'],arrows[node['num_op']],node['id']))
-  print(node['state'])
-
+  if node:
+    print('{0}{1}{2}'.format(node['father_id'],arrows[node['num_op']],node['id']))
+    print(node['state'])
 
 def main():
-  g = Graph()
+  g = NodeGraph()
   print('Goal State:')
   print(GS)
   #state = random_is()
   node = dict(id=get_id())
-  node['state'] = shuffle(GS,4)#IS#random_is()
+  node['state'] = shuffle(GS,10)#IS#random_is()
   node['father_id'] = 0
-  node['num_op'] = 4
+  node['num_op'] = len(CS)
   print('Initial State:')
   print(node['state'])
 
@@ -152,8 +152,18 @@ def main():
   else:
     print('failure...')
 
+  print('nodos visitados:')
   visited.qprint(f_print=f_print_node)
-  print(g)
+  #g.gprint(f_print_node)
+  #print(g)
+  print('solucion:')
+  if id_goal:
+    id_node = id_goal
+    next_node = g.get_node(id_node)
+    while next_node:
+      f_print_node(next_node)
+      next_node = g.get_node(next_node['father_id'])
+
 
 if __name__ == "__main__":
   main()
