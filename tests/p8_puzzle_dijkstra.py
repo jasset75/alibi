@@ -1,7 +1,7 @@
 import random
 import numpy as np
-from alibi.structures import NodeGraph
-from alibi.path_st import get_id, breadth
+from alibi.structures import WeightedNodeGraph
+from alibi.path_st import get_id, dijkstra
 
 random.seed()
 
@@ -146,8 +146,6 @@ def main():
   print(node['state'])
 
   success,visited,id_goal = breadth(g,node,f_open_node,f_reached=f_reached,verbose=False,f_print=f_print_node)
-
-  g.gv_graph('8-puzzle example')
 
   if success:
     print('success!')
