@@ -1,4 +1,5 @@
 import collections
+from graphviz import Digraph
 
 class Graph:
   def __init__(self):
@@ -19,6 +20,13 @@ class Graph:
       self._fst_edge(id_2)
       self.edges[id_2].append(id_1)
 
+  def gv_graph(self,title):
+    dot = Digraph(comment=title)
+    for e in self.edges:
+      str_e = str(e)
+      dot.node(str_e,str_e)
+      dot.edges(filter(lambda x: '{0}{1}'.format(str_e,x),self.edges[e]))
+    print(dot.source)
 
 class Queue:
   def __init__(self):

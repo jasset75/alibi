@@ -126,6 +126,8 @@ def main():
 
   success,visited,id_goal = breadth(g,nodo,f_open_node,f_reached=f_reached,verbose=True)
 
+  g.gv_graph('8-puzzle example')
+
   if success:
     print('success!')
   else:
