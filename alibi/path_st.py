@@ -1,4 +1,4 @@
-from alibi.structures import Queue
+from alibi.structures import Queue, PriorityQueue
 
 _id_counter = 0
 
@@ -29,5 +29,30 @@ def breadth(graph, start, f_open_node, f_reached=None, verbose=False, f_print=No
     for node in new_nodes:
       if closed.has(node) < 0:
         open_nodes.put(node)
+  #if open_nodes is empty return failure
+  return (not open_nodes.empty(),closed,[])
+
+def dijkstra(graph, start, f_open_node, f_reached=None, verbose=False, f_print=None):
+  # print out what we find
+  open_nodes = PriorityQueue()
+  closed = Queue()
+  open_nodes.put(start)
+  #closed.put(start)
+  while not open_nodes.empty():
+    current = open_nodes.get()
+    if verbose:
+      if callable(f_print):
+        f_print(current)
+      else:
+        print(current)
+    closed.put(current)
+    #verify goal reached
+    if callable(f_reached):
+      if f_reached(current):
+        return (True,closed,current['id'])
+    new_nodes = f_open_node(graph,current)
+    for priority,node in new_nodes:
+      if closed.has(node) < 0:
+        open_nodes.put(node,priority)
   #if open_nodes is empty return failure
   return (not open_nodes.empty(),closed,[])
