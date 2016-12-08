@@ -157,7 +157,7 @@ def main():
   print(GS)
   #state = random_is()
   node = dict(id=get_id())
-  node['state'] = shuffle(GS,6)#IS#random_is()
+  node['state'] = shuffle(GS,3)#IS#random_is()
   node['father_id'] = 0
   node['num_op'] = len(CS)
   print('Initial State:')
@@ -167,7 +167,7 @@ def main():
 
   tag = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 
-  g.gv_graph('8-puzzle example',fmt='svg',file='./tests/salida/{0}_tree'.format(tag),f_node_dot_label=f_dot_label)
+  g.gv_graph(id_goal=id_goal,title='8-puzzle example',fmt='svg',file='./tests/salida/{0}_tree'.format(tag),f_node_dot_label=f_dot_label)
 
   if success:
     print('success!')
@@ -179,7 +179,7 @@ def main():
 
   print('solution:')
   if id_goal:
-    g.gv_path(id_goal,f_get_node_id=get_node_id, f_get_father_id=get_father_id,title='8-puzzle example',fmt='svg',file='./tests/salida/{0}_sol'.format(tag),f_node_dot_label=f_dot_label)
+    g.gv_path(id_goal,f_get_node_id=get_node_id,f_get_father_id=get_father_id,title='8-puzzle example',fmt='svg',file='./tests/salida/{0}_sol'.format(tag),f_node_dot_label=f_dot_label)
     id_node = id_goal
     path = []
     next_node = g.get_node(id_node)

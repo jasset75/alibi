@@ -35,15 +35,19 @@ class Graph:
   def gprint(self):
     print(self.edges)
 
-  def gv_graph(self,title,fmt='svg',file=None, view=True, f_node_dot_label=_def_node_dot_label):
+  def gv_graph(self, id_goal=None, title='tree node',fmt='svg',file=None, view=True, f_node_dot_label=_def_node_dot_label):
     dot = Digraph(comment=title)
     dot.engine = 'circo'
     dot.attr('node', shape='record')
     for node in self.nodes:
-      label=f_node_dot_label(self.nodes[node])
-      dot.node(str(node),label)
-      #for each node e connect with each child 
-      list(map(lambda nn,sn=str(node): dot.edge(sn,str(nn),''),self.edges.get(node,[])))
+      n_attr = dict(label=f_node_dot_label(self.nodes[node]))
+      e_attr = {'color': 'blue'}
+      if id_goal and id_goal == node:
+        n_attr['color'] = 'green'
+      dot.node(str(node),**n_attr)
+      #for each node e connect with each child
+
+      list(map(lambda nn,sn=str(node): dot.edge(sn,str(nn),**e_attr),self.edges.get(node,[])))
     if file:
       dot.format = fmt
       dot.render(file,view=view)
