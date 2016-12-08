@@ -10,6 +10,9 @@ PUZZLE_SIDE = 3
 
 #numpy helpers
 def where_gap(state):
+  """
+  returns "gap" position where is
+  """
   res = np.where(state==0)
   return (res[0][0],res[1][0])
 
@@ -92,9 +95,10 @@ def shuffle(state,moves):
         ops[op_id](state_copy)
         break
   return state_copy  
-##ops list
-ops = [move_left,move_up,move_right,move_down]
 
+##operation list
+ops = [move_left,move_up,move_right,move_down]
+##operation representation
 arrows = ['<','^','>','v','=']
 
 ##Constraints
@@ -106,12 +110,20 @@ CS = [
 ]
 
 def check_cons(state,op_id):
+  """
+  check constraints and returns if state is safe
+  to apply the operation op_id
+  """
   cs = CS[op_id]
   gap_xy = where_gap(state)
   return gap_xy[cs[0]] != cs[1]
 
 ##State production
 def f_open_node(graph,current):
+  """
+  generates new states from current state
+  and writes info about
+  """
   def new_node(node,i,op):
     #apply op in state and generate new node
     new_state=op(np.copy(node['state']))
@@ -126,15 +138,24 @@ def f_open_node(graph,current):
   return open_nodes
 
 def f_reached(node):
+  """
+  returns if node's state if the goal state
+  """
   return goal_state_reached(node['state'])
 
 def f_print_node(node):
+  """
+  print node's string representation
+  """
   if node:
     print('{0}{1}{2}'.format(node['father_id'],arrows[node['num_op']],node['id']))
     print(node['state'])
 
 def main():
-  g = NodeGraph()
+  """
+  example using the structures and solver
+  """
+  g = WeightedNodeGraph()
   print('Goal State:')
   print(GS)
   #state = random_is()
@@ -166,7 +187,6 @@ def main():
     
     for node in path:
       f_print_node(node)
-
 
 if __name__ == "__main__":
   main()

@@ -1,3 +1,4 @@
+import datetime
 import random
 import numpy as np
 from alibi.structures import NodeGraph
@@ -17,9 +18,14 @@ def where_gap(state):
 
 ##Initial State (test state)
 #IS = np.matrix('2,8,3;1,6,4;7,0,5')
-IS = np.matrix('2,0,3;1,8,4;7,5,6')
+#IS = np.matrix('2,0,3;1,8,4;7,5,6')
 ##Goal State
 GS = np.matrix('1,2,3;8,0,4;7,6,5')
+
+def get_node_id(node):
+  return node['id']
+def get_father_id(node):
+  return node['father_id']
 
 #Production Rules
 def move_up(state):
@@ -95,7 +101,7 @@ def shuffle(state,moves):
 ##ops list
 ops = [move_left,move_up,move_right,move_down]
 
-arrows = ['<','^','>','v','=']
+arrows = ['\<','^','\>','v','=']
 
 ##Constraints
 CS = [
@@ -133,13 +139,25 @@ def f_print_node(node):
     print('{0}{1}{2}'.format(node['father_id'],arrows[node['num_op']],node['id']))
     print(node['state'])
 
+def f_dot_label(node):
+  rows = []
+  node_id = node['id']
+  state = node['state']
+  op = arrows[node['num_op']]
+  for row in state.tolist():
+    dot_row = '|'.join(map(str,row))
+    rows.append('{{{0}}}'.format(dot_row))
+  dot_rows = '|'.join(rows)
+  return '{0}|{2}|{{{1}}}'.format(node_id,dot_rows,op)
+
 def main():
   g = NodeGraph()
+
   print('Goal State:')
   print(GS)
   #state = random_is()
   node = dict(id=get_id())
-  node['state'] = shuffle(GS,10)#IS#random_is()
+  node['state'] = shuffle(GS,6)#IS#random_is()
   node['father_id'] = 0
   node['num_op'] = len(CS)
   print('Initial State:')
@@ -147,23 +165,27 @@ def main():
 
   success,visited,id_goal = breadth(g,node,f_open_node,f_reached=f_reached,verbose=False,f_print=f_print_node)
 
+  tag = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+
+  g.gv_graph('8-puzzle example',fmt='svg',file='./tests/salida/{0}_tree'.format(tag),f_node_dot_label=f_dot_label)
+
   if success:
     print('success!')
   else:
     print('failure...')
 
-  print('nodos visitados:')
+  print('visited nodes:')
   visited.qprint(f_print=f_print_node)
 
-  print('solucion:')
+  print('solution:')
   if id_goal:
+    g.gv_path(id_goal,f_get_node_id=get_node_id, f_get_father_id=get_father_id,title='8-puzzle example',fmt='svg',file='./tests/salida/{0}_sol'.format(tag),f_node_dot_label=f_dot_label)
     id_node = id_goal
     path = []
     next_node = g.get_node(id_node)
     while next_node:
       path.insert(0,next_node)
       next_node = g.get_node(next_node['father_id'])
-    
     for node in path:
       f_print_node(node)
 

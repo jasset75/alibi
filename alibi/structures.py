@@ -1,7 +1,16 @@
 import collections
 import heapq
+from graphviz import Digraph
+
+def _def_get_node_id(node):
+  return node['id']
+def _def_get_father_id(node):
+  return node['father']
+def _def_node_dot_label(node):
+  return 'lab_'+str(_def_get_node_id(node))
 
 class Graph:
+
   def __init__(self):
     self.edges = {}
 
@@ -26,9 +35,38 @@ class Graph:
   def gprint(self):
     print(self.edges)
 
+  def gv_graph(self,title,fmt='svg',file=None, view=True, f_node_dot_label=_def_node_dot_label):
+    dot = Digraph(comment=title)
+    dot.engine = 'circo'
+    dot.attr('node', shape='record')
+    for node in self.nodes:
+      label=f_node_dot_label(self.nodes[node])
+      dot.node(str(node),label)
+      #for each node e connect with each child 
+      list(map(lambda nn,sn=str(node): dot.edge(sn,str(nn),''),self.edges.get(node,[])))
+    if file:
+      dot.format = fmt
+      dot.render(file,view=view)
+    return dot.source
+
+  def gv_path(self,node_id, f_get_node_id=_def_get_node_id, f_get_father_id=_def_get_father_id,title='path to node',fmt='svg',file=None, view=True, f_node_dot_label=_def_node_dot_label):
+    dot = Digraph(comment=title)
+    dot.attr('node', shape='record')
+    next_node = self.get_node(node_id)
+    while next_node:
+      child_id = f_get_node_id(next_node)
+      label=f_node_dot_label(next_node)
+      dot.node(str(child_id),label)
+      father_id = f_get_father_id(next_node)
+      next_node = self.get_node(father_id)
+      if next_node:
+        dot.edge(str(father_id),str(child_id),'')   
+    if file:
+      dot.format = fmt
+      dot.render(file,view=view)
+    return dot.source
+
 class NodeGraph(Graph):
-  def _def_get_node_id(node):
-    return node['id']
 
   def _fst_add_node(self,node,f_get_node_id=_def_get_node_id):
     node_id = f_get_node_id(node)
@@ -57,10 +95,8 @@ class NodeGraph(Graph):
   def get_node(self,node_id):
     return self.nodes.get(node_id,None)
 
-
-
 class WeightedNodeGraph(NodeGraph):
-  
+
   def __init__(self):
     super(self.__class__,self).__init__()
     self.weights = {}
@@ -80,9 +116,6 @@ class WeightedNodeGraph(NodeGraph):
         w_2 = f_weight(node_2,node_1)
         self.weights['id_2']['id_1'] = w_2
 
-
-
-
 class Queue:
   def __init__(self):
     self.elements = collections.deque()
@@ -94,10 +127,7 @@ class Queue:
         f_print(n)
       else:
         print(n)
-    """
-    l = self.elements.list()
-    print(l)
-    """
+
   def __iter__(self):
     while not self.empty():
       yield self.get()
@@ -118,14 +148,14 @@ class Queue:
       return -1
 
 class PriorityQueue:
-    def __init__(self):
-        self.elements = []
-    
-    def empty(self):
-        return len(self.elements) == 0
-    
-    def put(self, x, priority=0):
-        heapq.heappush(self.elements, (priority, x))
-    
-    def get(self):
-        return heapq.heappop(self.elements)[1]
+  def __init__(self):
+    self.elements = []
+  
+  def empty(self):
+    return len(self.elements) == 0
+  
+  def put(self, x, priority=0):
+    heapq.heappush(self.elements, (priority, x))
+  
+  def get(self):
+    return heapq.heappop(self.elements)[1]
